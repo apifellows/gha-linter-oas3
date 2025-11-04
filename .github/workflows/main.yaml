@@ -1,0 +1,88 @@
+name: Demo Workflow with Quality Gate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      file-path:
+        description: 'Path to the OpenAPI 3 YAML file in your repository to validate'
+        required: false
+        default: 'demo/demo-success-v0.yaml'
+        type: string
+      continue-on-specification-error:
+        description: 'Continue CI/CD execution if the specification validation fails (true/false)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      continue-on-server-error:
+        description: 'Continue CI/CD execution if @apifellows service has an error or is unavailable (true/false)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      version:
+        description: '@apifellows OAS3 Linter Version (e.g., v1, v2)'
+        required: false
+        default: 'v1'
+        type: string
+
+jobs:
+ linter-oas3:
+    name: Validate Open API Specification (OAS3)
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Test Success Demo (Strict Mode)
+        uses: apifellows/gha-linter-oas3@v1
+        with:
+          file-path: 'demo/demo-success-v0.yaml'
+          continue-on-specification-error: 'false'
+          continue-on-server-error: 'false'
+          version: 'v1'
+      
+      - name: Test Warning Demo (Continue on Spec Errors)
+        uses: apifellows/gha-linter-oas3@v1
+        with:
+          file-path: 'demo/demo-warning-v0.yaml'
+          continue-on-specification-error: 'true'
+          continue-on-server-error: 'false'
+          version: 'v1'
+      
+      - name: Test Error Demo (Continue on Spec Errors)
+        uses: apifellows/gha-linter-oas3@v1
+        with:
+          file-path: 'demo/demo-error-v0.yaml'
+          continue-on-specification-error: 'true'
+          continue-on-server-error: 'false'
+          version: 'v1'
+
+ linter-oas3-manual:
+    name: Manual OAS3 Validation
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Run OAS3 Linter
+        uses: apifellows/gha-linter-oas3@v1
+        with:
+          file-path: ${{ inputs.file-path || 'demo/demo-success-v0.yaml' }}
+          continue-on-specification-error: ${{ inputs.continue-on-specification-error || 'false' }}
+          continue-on-server-error: ${{ inputs.continue-on-server-error || 'false' }}
+          version: ${{ inputs.version || 'v1' }}

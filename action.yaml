@@ -3,22 +3,22 @@ description: 'Validates Open API Specification (OAS3) YAML files using @apifello
 author: '@apifellows'
 
 inputs:
+  file-path:
+    description: 'Path to the OpenAPI 3 YAML file in your repository to validate'
+    required: true
+  continue-on-specification-error:
+    description: 'Continue CI/CD execution if the specification validation fails (true/false)'
+    required: false
+    default: 'false'
+  continue-on-server-error:
+    description: 'Continue CI/CD execution if @apifellows service has an error or is unavailable (true/false)'
+    required: false
+    default: 'false'
   version:
-    description: 'Linter API version to use (vlatest, v1, v2, ...)'
+    description: '@apifellows OAS3 Linter Version (e.g., v1, v2)'
     required: false
     default: 'v1'
-  file-path:
-    description: 'Path to the OpenAPI 3 YAML file to validate'
-    required: true
-  continue-on-server-error:
-    description: 'Continue execution if server returns an error'
-    required: false
-    default: 'false'
-  continue-on-specification-error:
-    description: 'Continue execution if specification validation fails'
-    required: false
-    default: 'false'
-
+  
 outputs:
   result:
     description: 'Validation result (success, warning, error)'
